@@ -1,0 +1,10 @@
+
+# Environment
+.env
+
+# Database
+ss_medicare.db
+
+# Binaries
+backend-core
+main

@@ -1,0 +1,38 @@
+# System related
+.DS_Store
+*.log
+tmp/
+.vscode/
+
+# Build artifacts
+node_modules/
+dist/
+.next/
+build/
+out/
+
+# Environment files - CRITICAL
+.env
+.env.local
+.env.*.local
+*.env
+*.pem
+
+# Go
+backend-core/main
+backend-core/*.exe
+backend-core/*.test
+backend-core/ss_medicare.db
+backend-core/ss_medicare.db-journal
+backend-core/vendor/
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
