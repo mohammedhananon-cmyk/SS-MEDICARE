@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "../page.module.css";
@@ -11,6 +11,20 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const router = useRouter();
+    const [theme, setTheme] = useState("light");
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }, []);
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,14 +54,36 @@ export default function Login() {
         <div
             style={{
                 display: "flex",
+                flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
                 minHeight: "100vh",
-                background: "var(--bg-gradient)",
+                background: "var(--bg-main)",
+                position: 'relative'
             }}
         >
+            <button
+                onClick={toggleTheme}
+                style={{
+                    position: 'absolute',
+                    top: '1.5rem',
+                    right: '1.5rem',
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '8px',
+                    padding: '0.5rem',
+                    cursor: 'pointer',
+                    color: 'var(--text-primary)',
+                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                    boxShadow: 'var(--shadow-sm)'
+                }}
+            >
+                {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+            </button>
+
             <div className="glass-card auth-card">
-                <h2 style={{ textAlign: "center", marginBottom: "1.5rem", color: "var(--primary)" }}>Welcome Back</h2>
+                <h2 style={{ textAlign: "center", marginBottom: "0.5rem", color: "var(--primary)" }}>Welcome to</h2>
+                <h1 style={{ textAlign: "center", marginBottom: "1.5rem", fontSize: '1.5rem', color: "var(--text-primary)" }}>SS MEDICARE</h1>
 
                 {error && (
                     <div style={{ background: '#fee2e2', color: 'var(--error)', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.875rem' }}>
