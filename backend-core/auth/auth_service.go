@@ -57,7 +57,7 @@ func Login(email, password string) (string, error) {
 		"userId": user.ID,
 		"email":  user.Email,
 		"role":   user.Role,
-		"exp":    time.Now().Add(time.Hour * 24).Unix(),
+		"exp":    time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days expiration
 	})
 
 	tokenString, err := token.SignedString(SecretKey)
