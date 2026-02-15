@@ -120,8 +120,33 @@ body {
   }
 
   .sidebar-wrapper {
-    display: none;
-    /* Hide sidebar on mobile for V1 */
+    /* Mobile Off-canvas styles */
+    display: block;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    width: 280px;
+    /* Slightly narrower on mobile */
+  }
+
+  .sidebar-wrapper.mobile-open {
+    transform: translateX(0);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .mobile-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 

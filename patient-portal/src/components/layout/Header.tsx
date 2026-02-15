@@ -90,10 +90,31 @@ export default function Header() {
 
     return (
         <header className={styles.header}>
-            <div className={styles.searchContainer} style={{ maxWidth: '400px', width: '100%', position: 'relative' }}>
+            <div className={styles.searchContainer} style={{ maxWidth: '400px', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {/* Mobile Menu Button */}
+                <button
+                    className="mobile-menu-btn"
+                    onClick={() => window.dispatchEvent(new Event('toggle-sidebar'))}
+                    style={{
+                        background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem',
+                        display: 'none', // Hidden by default (desktop)
+                        color: 'var(--text-secondary)'
+                    }}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <style jsx>{`
+                    @media (max-width: 768px) {
+                        .mobile-menu-btn { display: block !important; }
+                    }
+                `}</style>
                 <input
                     type="text"
-                    placeholder="Search records, doctors, or hospitals..."
+                    placeholder="Search..."
                     style={{
                         width: '100%',
                         padding: '0.75rem 1rem 0.75rem 2.5rem',
