@@ -1,6 +1,6 @@
-# Deployment Guide for National EHR System
+# SS MEDICARE
 
-This guide explains how to deploy the National EHR System to the cloud so everyone can access it.
+This guide explains how to deploy SS MEDICARE to the cloud so everyone can access it.
 
 ## Architecture
 - **Frontend**: Next.js (Deploy on Vercel)
