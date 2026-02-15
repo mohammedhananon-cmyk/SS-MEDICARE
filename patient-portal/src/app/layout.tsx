@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   description: "Secure Personal Health Dashboard for Citizens",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 import ClientLayout from "@/components/ClientLayout";
 
 export default function RootLayout({

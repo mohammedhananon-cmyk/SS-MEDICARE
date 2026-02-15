@@ -184,6 +184,20 @@ h6 {
   border-color: var(--primary-light);
 }
 
+/* Auth Card - Responsive */
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.5rem;
+    max-width: 90%;
+  }
+}
+
 .gradient-text {
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   -webkit-background-clip: text;

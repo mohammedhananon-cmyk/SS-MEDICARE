@@ -68,7 +68,7 @@ export default function Signup() {
                 background: "var(--bg-gradient)",
             }}
         >
-            <div className="glass-card" style={{ width: "100%", maxWidth: "400px", padding: "2.5rem" }}>
+            <div className="glass-card auth-card">
                 <h2 style={{ textAlign: "center", marginBottom: "1.5rem", color: "var(--primary)" }}>Create Account</h2>
 
                 {error && (

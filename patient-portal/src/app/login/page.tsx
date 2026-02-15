@@ -46,7 +46,7 @@ export default function Login() {
                 background: "var(--bg-gradient)",
             }}
         >
-            <div className="glass-card" style={{ width: "100%", maxWidth: "400px", padding: "2.5rem" }}>
+            <div className="glass-card auth-card">
                 <h2 style={{ textAlign: "center", marginBottom: "1.5rem", color: "var(--primary)" }}>Welcome Back</h2>
 
                 {error && (
