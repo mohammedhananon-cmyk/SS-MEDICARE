@@ -59,7 +59,14 @@ func AnalyzeLabResult(w http.ResponseWriter, r *http.Request) {
 
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
-		http.Error(w, "API Key not configured", http.StatusInternalServerError)
+		// Mock Response for Demo/Fallback
+		mockAnalysis := `{
+			"interpretation": "⚠️ DEMO MODE: API Key missing. \n\nBased on the uploaded data, the values appear effectively normal. This is a simulated interpretation for demonstration purposes.",
+			"lifestyle": "Maintain a balanced diet rich in vegetables and hydration.",
+			"medications": "No medications currently suggested in this demo."
+		}`
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"analysis": mockAnalysis})
 		return
 	}
 
@@ -85,7 +92,15 @@ func ScanPrescription(w http.ResponseWriter, r *http.Request) {
 
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
-		http.Error(w, "API Key not configured", http.StatusInternalServerError)
+		// Mock Response for Demo/Fallback
+		// Returns a JSON list as string, which frontend parses
+		mockAnalysis := `[
+			{"name": "Paracetamol (Demo)", "dosage": "500mg", "qty": "10", "price": "₹20"},
+			{"name": "Amoxicillin (Demo)", "dosage": "250mg", "qty": "15", "price": "₹85"},
+			{"name": "Vitamin C (Demo)", "dosage": "500mg", "qty": "30", "price": "₹120"}
+		]`
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"analysis": mockAnalysis})
 		return
 	}
 
@@ -122,7 +137,17 @@ func ScanLabReport(w http.ResponseWriter, r *http.Request) {
 
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
-		http.Error(w, "API Key not configured", http.StatusInternalServerError)
+		// Mock Response for Demo/Fallback
+		mockAnalysis := `{
+			"test_name": "General Blood Panel (Demo)",
+			"date": "2023-10-24",
+			"status": "Normal",
+			"interpretation": "⚠️ DEMO MODE: API Key missing. \n\nThe simulated report shows normal interactions. Hemoglobin and RBC counts are within standard range. This is a placeholder analysis.",
+			"lifestyle": "Regular exercise is recommended.",
+			"medications": "None"
+		}`
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"analysis": mockAnalysis})
 		return
 	}
 

@@ -38,7 +38,10 @@ export default function Prescriptions() {
                     body: JSON.stringify({ imageBase64: base64String })
                 });
 
-                if (!response.ok) throw new Error("Scan failed");
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Scan failed");
+                }
 
                 const data = await response.json();
                 try {
@@ -60,9 +63,9 @@ export default function Prescriptions() {
                     console.error("AI Parse Error", e);
                     setScannedMeds([{ id: 0, name: "Could not read prescription", dosage: "Try clearer image", qty: "-", price: "-" }]);
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Upload Error", error);
-                alert("Failed to connect to AI service.");
+                alert(`Error: ${error.message}`);
             } finally {
                 setIsUploading(false);
             }

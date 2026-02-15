@@ -34,7 +34,10 @@ export default function LabResults() {
                     body: JSON.stringify({ imageBase64: base64String })
                 });
 
-                if (!response.ok) throw new Error("Scan failed");
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Scan failed");
+                }
 
                 const data = await response.json();
                 try {
@@ -52,9 +55,9 @@ export default function LabResults() {
                 } catch (e) {
                     alert("AI could not extract structured data. Please try a clearer image.");
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Upload Error", error);
-                alert("Failed to connect to AI service.");
+                alert(`Error: ${error.message}`);
             } finally {
                 setIsUploading(false);
             }
