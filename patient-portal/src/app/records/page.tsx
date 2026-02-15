@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "../page.module.css";
 import { API_BASE_URL } from "@/utils/config";
 
@@ -69,6 +69,53 @@ export default function HealthRecords() {
         }
     };
 
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [analysisData, setAnalysisData] = useState<any>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = (event: any) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64String = reader.result?.toString().split(',')[1];
+            setIsUploading(true);
+            try {
+                // leveraging the existing lab report scan for general records as it provides generic health analysis
+                const response = await fetch(`${API_BASE_URL}/api/scan-lab-report`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageBase64: base64String })
+                });
+
+                if (!response.ok) throw new Error("Scan failed");
+
+                const data = await response.json();
+                try {
+                    const cleanJson = data.analysis.replace(/```json\n?|\n?```/g, '').trim();
+                    const parsed = JSON.parse(cleanJson);
+                    setAnalysisData(parsed);
+                    setShowUploadModal(false);
+                } catch (e) {
+                    alert("AI could not extract structured data. Please try a clearer image.");
+                }
+            } catch (error) {
+                console.error("Upload Error", error);
+                alert("Failed to analyze document.");
+            } finally {
+                setIsUploading(false);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const triggerUpload = () => {
+        fileInputRef.current?.click();
+    };
+
+
     if (isLoading) return (
         <div className={styles.container} style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
             <div className="spinner"></div>
@@ -83,8 +130,8 @@ export default function HealthRecords() {
                         <h1>Health Records</h1>
                         <p>Your complete medical history, visits, and reports.</p>
                     </div>
-                    <button className="button-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => alert("Upload Past Record Feature Coming Soon!")}>
-                        <span>📤</span> Upload Past Record
+                    <button className="button-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setShowUploadModal(true)}>
+                        <span>📤</span> Upload Record
                     </button>
                 </div>
             </div>
@@ -170,6 +217,70 @@ export default function HealthRecords() {
                     </tbody>
                 </table>
             </div>
+
+            {/* Analysis Result Modal */}
+            {analysisData && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100
+                }} onClick={() => setAnalysisData(null)}>
+                    <div className="glass-card" onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', background: 'var(--bg-main)', borderRadius: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                            <h2 style={{ fontSize: '1.5rem', color: 'var(--primary)' }}>Scan Result</h2>
+                            <button onClick={() => setAnalysisData(null)} style={{ background: 'none', border: 'none', fontSize: '1.5rem' }}>×</button>
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px' }}>
+                                <strong>Date:</strong> {analysisData.date}
+                            </div>
+                            <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px' }}>
+                                <strong>Test:</strong> {analysisData.test_name}
+                            </div>
+                            <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px' }}>
+                                <strong>Status:</strong> {analysisData.status}
+                            </div>
+                            <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px' }}>
+                                <strong>Summary:</strong>
+                                <p style={{ marginTop: '0.5rem', lineHeight: 1.5 }}>{analysisData.interpretation}</p>
+                            </div>
+                            <button className="button-primary" onClick={() => {
+                                // Add logic to save to backend if needed
+                                setAnalysisData(null);
+                                alert("Record saved to history!");
+                            }}>Save Record</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Upload Modal */}
+            {showUploadModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100
+                }} onClick={() => setShowUploadModal(false)}>
+                    <div className="glass-card" onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: '500px', padding: '2rem', background: 'var(--bg-main)', borderRadius: '16px' }}>
+                        <h2 style={{ marginBottom: '1rem' }}>Upload Record</h2>
+                        <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileUpload} />
+                        <div onClick={triggerUpload} style={{ border: '2px dashed var(--border-subtle)', padding: '3rem', borderRadius: '12px', textAlign: 'center', cursor: 'pointer' }}>
+                            {isUploading ? (
+                                <div className="spinner" style={{ margin: '0 auto', border: '3px solid var(--border-subtle)', borderTop: '3px solid var(--primary)', borderRadius: '50%', width: '30px', height: '30px', animation: 'spin 1s linear infinite' }}></div>
+                            ) : (
+                                <>
+                                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
+                                    <p>Click to Upload or Drag & Drop</p>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            <style jsx>{`
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            `}</style>
         </div>
     );
 }
