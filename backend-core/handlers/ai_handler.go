@@ -175,7 +175,8 @@ func ScanLabReport(w http.ResponseWriter, r *http.Request) {
 }
 
 func callGemini(apiKey, text string, image *Blob) (string, error) {
-	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey
+	// Switching to gemini-1.5-pro for better stability/availability if flash is failing
+	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + apiKey
 
 	parts := []GeminiPart{{Text: text}}
 	if image != nil {
