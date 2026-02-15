@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import styles from "../page.module.css";
+import { API_BASE_URL } from "@/utils/config";
 
 export default function Prescriptions() {
     const [showUploadModal, setShowUploadModal] = useState(false);
@@ -31,7 +32,7 @@ export default function Prescriptions() {
             const base64String = reader.result?.toString().split(',')[1];
             setIsUploading(true);
             try {
-                const response = await fetch('http://localhost:8080/api/scan-prescription', {
+                const response = await fetch(`${API_BASE_URL}/api/scan-prescription`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ imageBase64: base64String })
