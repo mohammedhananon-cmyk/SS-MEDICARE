@@ -1,13 +1,31 @@
 "use client";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const router = useRouter(); // Initialize router
     const isAuthPage = pathname === "/login" || pathname === "/signup";
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Added state
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Auth Check
+        const token = localStorage.getItem('token');
+        if (!token && !isAuthPage) {
+            router.push('/login');
+        } else if (token && isAuthPage) {
+            // Optional: Redirect to dashboard if trying to access login while authenticated
+            router.push('/');
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(!!token);
+        }
+        setIsLoading(false);
+    }, [pathname, isAuthPage, router]);
 
     useEffect(() => {
         // Close sidebar on route change
@@ -19,6 +37,26 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         window.addEventListener('toggle-sidebar', toggleHandler);
         return () => window.removeEventListener('toggle-sidebar', toggleHandler);
     }, []);
+
+    // Prevent hydration mismatch or flash by showing nothing while checking
+    if (isLoading) {
+        return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="spinner" style={{
+                border: '3px solid var(--border-subtle)',
+                borderTop: '3px solid var(--primary)',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                animation: 'spin 1s linear infinite'
+            }}></div>
+            <style jsx>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        </div>;
+    }
+
+    // If strictly not authenticated and trying to access protected route (and not currently redirecting), don't render content
+    if (!isAuthenticated && !isAuthPage) {
+        return null;
+    }
 
     if (isAuthPage) {
         return <main style={{ minHeight: "100vh" }}>{children}</main>;
