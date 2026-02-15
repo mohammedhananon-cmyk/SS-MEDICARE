@@ -16,13 +16,16 @@ import (
 func GetProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	
-	// For now, hardcode UserID 1 until we read from JWT Context
+	userID, err := getUserIDFromRequest(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var profile models.Profile
-	result := database.DB.First(&profile, "user_id = ?", 1) // Fetch profile for user 1
+	result := database.DB.First(&profile, "user_id = ?", userID)
 	
 	if result.Error != nil {
-		// If profile doesn't exist, generic empty one or 404
-		// For demo flow, we ensure Signup creates one, so this should suffice
 		http.Error(w, "Profile not found", http.StatusNotFound)
 		return
 	}
@@ -37,6 +40,12 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, err := getUserIDFromRequest(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var updatedData models.Profile
 	if err := json.NewDecoder(r.Body).Decode(&updatedData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -44,7 +53,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	var profile models.Profile
-	if result := database.DB.First(&profile, "user_id = ?", 1); result.Error != nil {
+	if result := database.DB.First(&profile, "user_id = ?", userID); result.Error != nil {
 		http.Error(w, "Profile not found", http.StatusNotFound)
 		return
 	}
@@ -58,6 +67,12 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 // UploadProfilePhoto handles photo uploads
 func UploadProfilePhoto(w http.ResponseWriter, r *http.Request) {
+    userID, err := getUserIDFromRequest(r)
+    if err != nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+
     // 10MB max
     r.ParseMultipartForm(10 << 20)
 
@@ -74,7 +89,7 @@ func UploadProfilePhoto(w http.ResponseWriter, r *http.Request) {
     // But since we are running go run main.go from backend-core, "uploads" will be in backend-core
     
     // Create unique filename
-    filename := fmt.Sprintf("upload-%d-%s", time.Now().Unix(), handler.Filename)
+    filename := fmt.Sprintf("upload-%d-%d-%s", time.Now().Unix(), userID, handler.Filename)
     
     // Save file
     dst, err := os.Create("uploads/" + filename)
@@ -91,7 +106,7 @@ func UploadProfilePhoto(w http.ResponseWriter, r *http.Request) {
 
     // Update Profile in DB
     var profile models.Profile
-    if result := database.DB.First(&profile, "user_id = ?", 1); result.Error != nil {
+    if result := database.DB.First(&profile, "user_id = ?", userID); result.Error != nil {
         http.Error(w, "Profile not found", http.StatusNotFound)
         return
     }

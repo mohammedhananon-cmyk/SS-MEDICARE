@@ -26,9 +26,13 @@ func GlobalSearch(w http.ResponseWriter, r *http.Request) {
 	}
 	query = strings.ToLower(query)
 
+	userID, err := getUserIDFromRequest(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var results []SearchResult
-	// Hardcoded UserID = 1 for now
-	userID := 1
 
 	// 0. Navigation Keywords (Static)
 	if strings.Contains(strings.ToLower("profile"), query) || strings.Contains(query, "profile") {
