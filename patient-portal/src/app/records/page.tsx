@@ -78,12 +78,19 @@ export default function HealthRecords() {
     return (
         <div className={styles.container}>
             <div className={styles.welcome}>
-                <h1>Health Records</h1>
-                <p>Your complete medical history, visits, and reports.</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1>Health Records</h1>
+                        <p>Your complete medical history, visits, and reports.</p>
+                    </div>
+                    <button className="button-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => alert("Upload Past Record Feature Coming Soon!")}>
+                        <span>📤</span> Upload Past Record
+                    </button>
+                </div>
             </div>
 
             <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <table className="responsive-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead>
                         <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
                             <th style={{ padding: '1rem', fontWeight: 600 }}>Date</th>
@@ -98,13 +105,13 @@ export default function HealthRecords() {
                         {records.length > 0 ? (
                             records.map((record) => (
                                 <tr key={record.id || record.ID} style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
-                                    <td style={{ padding: '1rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                                    <td data-label="Date" style={{ padding: '1rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
                                         {record.date}
                                         {new Date(record.date) > new Date() && (
                                             <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--primary)', marginTop: '2px' }}>Upcoming</span>
                                         )}
                                     </td>
-                                    <td style={{ padding: '1rem' }}>
+                                    <td data-label="Type" style={{ padding: '1rem' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                             <span style={{ fontSize: '1.2rem' }}>
                                                 {record.isAppointment ? '🗓️' : '📄'}
@@ -112,9 +119,9 @@ export default function HealthRecords() {
                                             {record.type}
                                         </div>
                                     </td>
-                                    <td style={{ padding: '1rem' }}>{record.doctor}</td>
-                                    <td style={{ padding: '1rem', color: 'var(--text-secondary)' }}>{record.facility}</td>
-                                    <td style={{ padding: '1rem' }}>
+                                    <td data-label="Doctor" style={{ padding: '1rem' }}>{record.doctor}</td>
+                                    <td data-label="Facility" style={{ padding: '1rem', color: 'var(--text-secondary)' }}>{record.facility}</td>
+                                    <td data-label="Status" style={{ padding: '1rem' }}>
                                         <span style={{
                                             padding: '0.25rem 0.75rem',
                                             borderRadius: '99px',
@@ -135,7 +142,7 @@ export default function HealthRecords() {
                                             {record.status}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '1rem' }}>
+                                    <td data-label="Action" style={{ padding: '1rem' }}>
                                         {record.isAppointment && record.status === 'Upcoming' ? (
                                             <button className="button-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>Reschedule</button>
                                         ) : (
@@ -146,7 +153,8 @@ export default function HealthRecords() {
                                                 border: '1px solid var(--border-subtle)',
                                                 borderRadius: '6px',
                                                 color: 'var(--text-primary)',
-                                                background: 'var(--bg-secondary)'
+                                                background: 'var(--bg-secondary)',
+                                                display: 'inline-block'
                                             }}>View</a>
                                         )}
                                     </td>

@@ -148,6 +148,55 @@ body {
     opacity: 1;
     pointer-events: auto;
   }
+
+  /* Responsive Tables for Mobile */
+  .responsive-table,
+  .responsive-table thead,
+  .responsive-table tbody,
+  .responsive-table th,
+  .responsive-table td,
+  .responsive-table tr {
+    display: block;
+  }
+
+  .responsive-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .responsive-table tr {
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    background: var(--bg-secondary);
+    padding: 1rem;
+  }
+
+  .responsive-table td {
+    border: none;
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .responsive-table td:last-child {
+    border-bottom: none;
+  }
+
+  .responsive-table td:before {
+    /* Use data-label attribute validation in component */
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: 1rem;
+  }
 }
 
 /* Typography */
