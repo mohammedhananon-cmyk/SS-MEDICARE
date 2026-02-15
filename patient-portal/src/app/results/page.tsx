@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import styles from "../page.module.css";
 
 export default function LabResults() {
@@ -11,11 +11,12 @@ export default function LabResults() {
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const results = [
-        { id: "LAB-992", test: "Comprehensive Metabolic Panel", date: "Feb 10, 2024", clinic: "City Lab Corp", status: "Normal" },
-        { id: "LAB-884", test: "Lipid Panel", date: "Jan 15, 2024", clinic: "City Lab Corp", status: "High Cholesterol" },
-        { id: "LAB-773", test: "Urinalysis", date: "Dec 20, 2023", clinic: "SS Medicare Center", status: "Normal" },
-    ];
+    // For fresh users, start with empty list.
+    const [results, setResults] = useState<any[]>([]);
+
+    // In real app, fetch from API. Leaving empty for now.
+    useEffect(() => {
+    }, []);
 
     const handleFileUpload = (event: any) => {
         const file = event.target.files?.[0];
@@ -134,74 +135,84 @@ export default function LabResults() {
             </div>
 
             <div className="glass-card">
-                {results.map((res, idx) => (
-                    <div key={res.id} style={{
-                        padding: '1.5rem',
-                        borderBottom: idx !== results.length - 1 ? '1px solid var(--border-subtle)' : 'none',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: '1rem'
-                    }}>
-                        <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{res.test}</h3>
-                                {res.status !== 'Normal' && (
-                                    <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: '#fee2e2', color: '#dc2626', fontWeight: 500 }}>
-                                        Attention Needed
+                <div className="glass-card">
+                    {results.length === 0 ? (
+                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔬</div>
+                            <h3>No Lab Results Found</h3>
+                            <p>Upload a lab report to get started.</p>
+                        </div>
+                    ) : (
+                        results.map((res, idx) => (
+                            <div key={res.id || idx} style={{
+                                padding: '1.5rem',
+                                borderBottom: idx !== results.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                gap: '1rem'
+                            }}>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{res.test}</h3>
+                                        {res.status !== 'Normal' && (
+                                            <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: '#fee2e2', color: '#dc2626', fontWeight: 500 }}>
+                                                Attention Needed
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                                        {res.date} • {res.clinic}
+                                    </p>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    <span style={{
+                                        padding: '0.25rem 0.75rem',
+                                        borderRadius: '6px',
+                                        fontSize: '0.875rem',
+                                        fontWeight: 500,
+                                        backgroundColor: res.status === 'Normal' ? '#dcfce7' : '#fef3c7',
+                                        color: res.status === 'Normal' ? '#166534' : '#92400e'
+                                    }}>
+                                        {res.status}
                                     </span>
-                                )}
+
+                                    <button
+                                        onClick={() => handleAnalyze(res)}
+                                        style={{
+                                            background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '0.5rem 1rem',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            boxShadow: '0 4px 6px -1px rgba(99, 102, 241, 0.2)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem',
+                                            fontWeight: 500,
+                                            fontSize: '0.875rem'
+                                        }}>
+                                        ✨ AI Insight
+                                    </button>
+
+                                    <button style={{
+                                        background: 'transparent',
+                                        border: '1px solid var(--border-subtle)',
+                                        padding: '0.5rem',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        color: 'var(--text-secondary)'
+                                    }}>
+                                        ⬇ PDF
+                                    </button>
+                                </div>
                             </div>
-                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                                {res.date} • {res.clinic}
-                            </p>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                            <span style={{
-                                padding: '0.25rem 0.75rem',
-                                borderRadius: '6px',
-                                fontSize: '0.875rem',
-                                fontWeight: 500,
-                                backgroundColor: res.status === 'Normal' ? '#dcfce7' : '#fef3c7',
-                                color: res.status === 'Normal' ? '#166534' : '#92400e'
-                            }}>
-                                {res.status}
-                            </span>
-
-                            <button
-                                onClick={() => handleAnalyze(res)}
-                                style={{
-                                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '0.5rem 1rem',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 4px 6px -1px rgba(99, 102, 241, 0.2)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    fontWeight: 500,
-                                    fontSize: '0.875rem'
-                                }}>
-                                ✨ AI Insight
-                            </button>
-
-                            <button style={{
-                                background: 'transparent',
-                                border: '1px solid var(--border-subtle)',
-                                padding: '0.5rem',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                color: 'var(--text-secondary)'
-                            }}>
-                                ⬇ PDF
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                        ))
+                    )}
+                </div>
             </div>
 
             {/* AI Analysis Modal */}

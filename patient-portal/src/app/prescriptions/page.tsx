@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import styles from "../page.module.css";
 
 export default function Prescriptions() {
@@ -9,11 +9,14 @@ export default function Prescriptions() {
     const [scannedMeds, setScannedMeds] = useState<any>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const meds = [
-        { name: "Lisinopril", dosage: "10mg", freq: "Once daily", doctor: "Dr. Sarah", date: "Jan 10, 2024", refills: 2, status: "Active" },
-        { name: "Atorvastatin", dosage: "20mg", freq: "Once daily at night", doctor: "Dr. Sarah", date: "Jan 10, 2024", refills: 1, status: "Active" },
-        { name: "Amoxicillin", dosage: "500mg", freq: "3 times daily", doctor: "Dr. Patel", date: "Dec 05, 2023", refills: 0, status: "Expired" },
-    ];
+    // For fresh users, start with empty list. In real app, fetch from API.
+    const [meds, setMeds] = useState<any[]>([]);
+
+    // Simulating fetching empty or real data
+    useEffect(() => {
+        // fetchMeds(); 
+        // For now, leaving empty to satisfy "fresh user" requirement
+    }, []);
 
     const triggerUpload = () => {
         fileInputRef.current?.click();
@@ -89,44 +92,53 @@ export default function Prescriptions() {
             </div>
 
             <div style={{ display: 'grid', gap: '1.5rem' }}>
-                {meds.map((med, idx) => (
-                    <div key={idx} className="glass-card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: med.status === 'Expired' ? 0.7 : 1 }}>
-                        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                            <div style={{
-                                width: '60px', height: '60px', borderRadius: '12px',
-                                background: med.status === 'Active' ? 'var(--accent-light)' : 'var(--bg-main)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: med.status === 'Active' ? 'var(--accent)' : 'var(--text-tertiary)',
-                                fontSize: '1.5rem'
-                            }}>
-                                💊
-                            </div>
-                            <div>
-                                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>
-                                    {med.name} <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>{med.dosage}</span>
-                                </h3>
-                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{med.freq} • Prescribed by {med.doctor}</p>
-                            </div>
-                        </div>
-
-                        <div style={{ textAlign: 'right' }}>
-                            <div style={{ marginBottom: '0.5rem' }}>
-                                <span style={{
-                                    fontWeight: 600,
-                                    color: med.status === 'Active' ? 'var(--success)' : 'var(--text-tertiary)'
-                                }}>
-                                    {med.status}
-                                </span>
-                            </div>
-                            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                                {med.refills} refills remaining
-                            </div>
-                            {med.status === 'Active' && (
-                                <button className="button-primary" style={{ marginTop: '0.75rem', padding: '0.5rem 1rem', fontSize: '0.875rem' }}>Request Refill</button>
-                            )}
-                        </div>
+                {meds.length === 0 ? (
+                    <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💊</div>
+                        <h3>No Active Prescriptions</h3>
+                        <p>Upload a prescription to get started.</p>
                     </div>
-                ))}
+                ) : (
+                    meds.map((med, idx) => (
+                        <div key={idx} className="glass-card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: med.status === 'Expired' ? 0.7 : 1 }}>
+                            {/* ... Existing med card content ... */}
+                            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                                <div style={{
+                                    width: '60px', height: '60px', borderRadius: '12px',
+                                    background: med.status === 'Active' ? 'var(--accent-light)' : 'var(--bg-main)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    color: med.status === 'Active' ? 'var(--accent)' : 'var(--text-tertiary)',
+                                    fontSize: '1.5rem'
+                                }}>
+                                    💊
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>
+                                        {med.name} <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>{med.dosage}</span>
+                                    </h3>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{med.freq} • Prescribed by {med.doctor}</p>
+                                </div>
+                            </div>
+
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ marginBottom: '0.5rem' }}>
+                                    <span style={{
+                                        fontWeight: 600,
+                                        color: med.status === 'Active' ? 'var(--success)' : 'var(--text-tertiary)'
+                                    }}>
+                                        {med.status}
+                                    </span>
+                                </div>
+                                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary' }}>
+                                    {med.refills} refills remaining
+                                </div>
+                                {med.status === 'Active' && (
+                                    <button className="button-primary" style={{ marginTop: '0.75rem', padding: '0.5rem 1rem', fontSize: '0.875rem' }}>Request Refill</button>
+                                )}
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
 
             {/* Upload Modal */}

@@ -17,26 +17,44 @@ export default function Signup() {
         e.preventDefault();
         setError("");
 
+        if (password.length < 8) {
+            setError("Password must be at least 8 characters long");
+            return;
+        }
+
         if (password !== confirmPassword) {
             setError("Passwords do not match");
             return;
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/signup`, {
+            const signupRes = await fetch(`${API_BASE_URL}/api/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             });
 
-            if (response.ok) {
-                // Automatically login after signup (for demo simplicity, though here I'll just redirect to login)
-                router.push("/login");
+            if (signupRes.status === 201) { // 201 Created
+                // Automatically login
+                const loginRes = await fetch(`${API_BASE_URL}/api/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                if (loginRes.ok) {
+                    const data = await loginRes.json();
+                    localStorage.setItem("token", data.token);
+                    window.dispatchEvent(new Event("storage"));
+                    router.push("/");
+                } else {
+                    router.push("/login"); // Fallback if auto-login fails
+                }
             } else {
-                setError("Failed to create account or user already exists");
+                setError("Failed to create account. User may already exist.");
             }
         } catch (err) {
-            setError("Something went wrong. Please try again.");
+            setError("Network error. Please try again.");
         }
     };
 

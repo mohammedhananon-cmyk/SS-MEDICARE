@@ -17,8 +17,7 @@ export const metadata: Metadata = {
   description: "Secure Personal Health Dashboard for Citizens",
 };
 
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
+import ClientLayout from "@/components/ClientLayout";
 
 export default function RootLayout({
   children,
@@ -28,17 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <div className="layout-wrapper">
-          <div className="sidebar-wrapper">
-            <Sidebar />
-          </div>
-          <div className="main-content">
-            <Header />
-            <main style={{ flex: 1, padding: "1rem 0" }}>
-              {children}
-            </main>
-          </div>
-        </div>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );
