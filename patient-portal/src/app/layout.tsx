@@ -28,9 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-main)" }}>
-          <Sidebar />
-          <div style={{ flex: 1, marginLeft: "290px", paddingRight: "1rem", display: "flex", flexDirection: "column" }}>
+        <div className="layout-wrapper">
+          <div className="sidebar-wrapper">
+            <Sidebar />
+          </div>
+          <div className="main-content">
             <Header />
             <main style={{ flex: 1, padding: "1rem 0" }}>
               {children}

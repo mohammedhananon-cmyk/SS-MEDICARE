@@ -1,9 +1,7 @@
 .header {
     height: 80px;
-    margin-left: 280px;
-    /* 260px sidebar + 20px gap */
-    width: calc(100% - 300px);
-    /* Adjust width */
+    width: 100%;
+    /* Parent container handles width/margin */
     display: flex;
     align-items: center;
     justify-content: space-between;

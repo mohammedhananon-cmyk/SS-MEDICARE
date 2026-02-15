@@ -90,7 +90,7 @@ export default function Header() {
 
     return (
         <header className={styles.header}>
-            <div className={styles.searchContainer} style={{ width: '400px', position: 'relative' }}>
+            <div className={styles.searchContainer} style={{ maxWidth: '400px', width: '100%', position: 'relative' }}>
                 <input
                     type="text"
                     placeholder="Search records, doctors, or hospitals..."

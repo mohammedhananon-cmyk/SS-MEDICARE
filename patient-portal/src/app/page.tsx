@@ -6,28 +6,34 @@ import { API_BASE_URL } from "@/utils/config";
 
 export default function Home() {
   const [profile, setProfile] = useState<any>(null);
-  const [alerts, setAlerts] = useState([
-    { id: 1, type: 'warning', message: 'Upcoming appointment with Dr. Sarah tomorrow at 10:00 AM.' },
-    { id: 2, type: 'info', message: 'New lab results from City Lab Corp are available.' },
-  ]);
+  // Initial alerts (Can be populated from backend later)
+  const [alerts, setAlerts] = useState<any[]>([]);
 
   // Vitals State
   const [isDeviceConnected, setIsDeviceConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [vitals, setVitals] = useState({
-    bp: "120/80",
-    hr: 72,
-    spo2: 98
+    bp: "--/--",
+    hr: 0,
+    spo2: 0
   });
-  const [lastUpdated, setLastUpdated] = useState("Just now");
+  const [lastUpdated, setLastUpdated] = useState("Never");
 
   // Trend State
   const [trendRange, setTrendRange] = useState('Real-Time');
   const [bpTrend, setBpTrend] = useState<any[]>([]);
 
   useEffect(() => {
-    // Initialize trend based on default range
+    // Initialize trend based on default range with empty data for new users
     updateHistoricalData('Real-Time');
+
+    // Fetch Profile
+    fetch(`${API_BASE_URL}/api/profile`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => res.json())
+      .then(data => setProfile(data))
+      .catch(err => console.error("Failed to load profile", err));
   }, []);
 
   useEffect(() => {
@@ -35,40 +41,30 @@ export default function Home() {
   }, [trendRange]);
 
   const updateHistoricalData = (range: string) => {
+    // For a new user, we start with empty or placeholder trends until device connects
+    if (!isDeviceConnected && range === 'Real-Time') {
+      setBpTrend(Array(7).fill({ label: '--:--', sys: 0, dia: 0 }));
+      return;
+    }
+
+    // ... (Simulation logic can remain for demo purposes if connected, but let's keep it simple for now)
+    // If we want "fresh", let's just show empty until they connect.
     let data = [];
     const now = new Date();
 
     if (range === 'Real-Time') {
-      // Reset to initial real-time state
       data = [
-        { label: '10:00', sys: 118, dia: 78 },
-        { label: '10:30', sys: 122, dia: 80 },
-        { label: '11:00', sys: 119, dia: 79 },
-        { label: '11:30', sys: 125, dia: 82 },
-        { label: '12:00', sys: 121, dia: 78 },
-        { label: '12:30', sys: 123, dia: 81 },
-        { label: '13:00', sys: 120, dia: 80 },
+        { label: '10:00', sys: 0, dia: 0 },
+        { label: '10:30', sys: 0, dia: 0 },
+        { label: '11:00', sys: 0, dia: 0 },
+        { label: '11:30', sys: 0, dia: 0 },
+        { label: '12:00', sys: 0, dia: 0 },
+        { label: '12:30', sys: 0, dia: 0 },
+        { label: '13:00', sys: 0, dia: 0 },
       ];
-    } else if (range === 'Past Week') {
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(now.getDate() - i);
-        data.push({
-          label: d.toLocaleDateString([], { weekday: 'short' }),
-          sys: 115 + Math.floor(Math.random() * 15),
-          dia: 75 + Math.floor(Math.random() * 10)
-        });
-      }
-    } else if (range === 'Past Month') {
-      for (let i = 3; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(now.getDate() - (i * 7));
-        data.push({
-          label: `Week ${4 - i}`,
-          sys: 118 + Math.floor(Math.random() * 10),
-          dia: 78 + Math.floor(Math.random() * 8)
-        });
-      }
+    } else {
+      // Just empty placeholders
+      for (let i = 0; i < 7; i++) data.push({ label: 'Day ' + (i + 1), sys: 0, dia: 0 });
     }
     setBpTrend(data);
   };
@@ -88,7 +84,7 @@ export default function Home() {
   };
 
   const updateTrend = () => {
-    if (trendRange !== 'Real-Time') return; // Only update live if in Real-Time mode
+    if (trendRange !== 'Real-Time' || !isDeviceConnected) return; // Only update live if in Real-Time mode AND connected
 
     const now = new Date();
     const timeLabel = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -106,6 +102,7 @@ export default function Home() {
     if (isDeviceConnected) {
       setIsDeviceConnected(false);
       setVitals({ bp: "--/--", hr: 0, spo2: 0 }); // Reset on disconnect
+      setLastUpdated("Never");
       return;
     }
 
@@ -114,6 +111,9 @@ export default function Home() {
     setTimeout(() => {
       setIsConnecting(false);
       setIsDeviceConnected(true);
+      // Simulate reading
+      setVitals({ bp: "120/80", hr: 72, spo2: 98 });
+      setLastUpdated("Just now");
       triggerAlert('info', 'SmartWatch Ultra connected successfully.');
     }, 2500);
   };
@@ -123,9 +123,9 @@ export default function Home() {
   };
 
   const stats = [
-    { title: "Next Appointment", value: "Feb 14", change: "Dr. Sarah (Cardiology)", type: "primary" },
-    { title: "Latest Lab Result", value: "Normal", change: "Blood Panel (Yesterday)", type: "success" },
-    { title: "Prescriptions", value: "3 Active", change: "Refill in 5 days", type: "warning" },
+    { title: "Next Appointment", value: "No Appts", change: "Schedule Now", type: "neutral" },
+    { title: "Latest Lab Result", value: "--", change: "No records found", type: "neutral" },
+    { title: "Prescriptions", value: "0 Active", change: "No active meds", type: "neutral" },
   ];
 
   return (
@@ -256,24 +256,10 @@ export default function Home() {
           <h2>Recent Activity</h2>
           <ul className={styles.activityList}>
             <li>
-              <span className={styles.dot}></span>
+              <span className={styles.dot} style={{ background: 'var(--primary)' }}></span>
               <div>
-                <p><strong>Appointment Confirmed</strong></p>
-                <small>Updated 2 hours ago • Dr. Sarah</small>
-              </div>
-            </li>
-            <li>
-              <span className={styles.dot} style={{ background: 'var(--success)' }}></span>
-              <div>
-                <p><strong>Lab Results Available</strong></p>
-                <small>Yesterday • General Blood Panel</small>
-              </div>
-            </li>
-            <li>
-              <span className={styles.dot} style={{ background: 'var(--warning)' }}></span>
-              <div>
-                <p><strong>Prescription Refilled</strong></p>
-                <small>3 days ago • Lisinopril 10mg</small>
+                <p><strong>Account Created</strong></p>
+                <small>Welcome to SS MEDICARE</small>
               </div>
             </li>
           </ul>
