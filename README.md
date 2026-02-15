@@ -1,7 +1,7 @@
 # SS MEDICARE System
 
 ## 🏥 Vision
-A single, scalable, and secure digital platform to unify healthcare data for every citizen, powered by a Unique National Health ID and AI-driven insights.
+A single, scalable, and secure digital platform to unify healthcare data for every citizen, powered by a Unique SS MEDICARE Health ID and AI-driven insights.
 
 ## 🏗 Architecture
 The system follows a Cloud-Native Microservices architecture:

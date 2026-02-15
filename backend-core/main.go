@@ -21,7 +21,7 @@ func main() {
 	mux := http.NewServeMux()
 	
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Welcome to the National EHR Core Service (Go) - API Ready")
+		fmt.Fprintf(w, "Welcome to the SS MEDICARE Core Service (Go) - API Ready")
 	})
 
 	mux.HandleFunc("/api/signup", handlers.RegisterHandler)
