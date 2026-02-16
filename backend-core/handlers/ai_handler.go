@@ -174,23 +174,36 @@ func ScanLabReport(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"analysis": response})
 }
 
-func callGemini(apiKey, text string, image *Blob) (string, error) {
-	// Using gemini-1.5-flash which is stable and widely available on v1beta
-	modelName := "gemini-1.5-flash"
+func callGemini(apiKey, text string, imageBlob *Blob) (string, error) {
+	// Fallback to gemini-1.5-pro, which is often more stable in free tier for complex multimodal
+	modelName := "gemini-1.5-pro"
 	url := "https://generativelanguage.googleapis.com/v1beta/models/" + modelName + ":generateContent?key=" + apiKey
 
 	fmt.Printf("Calling Gemini Model: %s\n", modelName)
 
-	parts := []GeminiPart{{Text: text}}
-	if image != nil {
-		parts = append(parts, GeminiPart{InlineData: image})
+	// Prepare Parts
+	var parts []GeminiPart
+	parts = append(parts, GeminiPart{Text: text})
+
+	if imageBlob != nil {
+		parts = append(parts, GeminiPart{
+			InlineData: &Blob{
+				MimeType: imageBlob.MimeType,
+				Data:     imageBlob.Data,
+			},
+		})
 	}
 
-	geminiReq := GeminiRequest{
-		Contents: []GeminiContent{{Parts: parts}},
+	// Payload Structure
+	requestBody := map[string]interface{}{
+		"contents": []map[string]interface{}{
+			{
+				"parts": parts,
+			},
+		},
 	}
 
-	jsonData, err := json.Marshal(geminiReq)
+	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
 		return "", err
 	}
@@ -203,6 +216,7 @@ func callGemini(apiKey, text string, image *Blob) (string, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
+		// Check for specific error to maybe fallback
 		return "", fmt.Errorf("API Error: %s", string(body))
 	}
 
