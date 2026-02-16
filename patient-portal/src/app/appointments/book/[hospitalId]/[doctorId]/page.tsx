@@ -81,10 +81,12 @@ export default function BookingConfirmation({ params }: { params: Promise<{ hosp
         if (!hospital || !doctor) return;
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/api/appointments`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     userId: 1, // Mock User ID
