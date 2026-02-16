@@ -71,9 +71,11 @@ func AnalyzeLabResult(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Construct Prompt
-	prompt := fmt.Sprintf("%s\n\nAnalyze this lab result: Test: %s, Status: %s, Date: %s.\nProvide:\n1. Interpretation (What does this mean?)\n2. Lifestyle Tips (Diet/Exercise)\n3. Suggested Medications (Generic names, if applicable. Mark as 'Consult Doctor')\nOutput as JSON with keys: interpretation, lifestyle, medications.", SafetyPrompt, req.TestName, req.Status, req.Date)
+	// prompt := fmt.Sprintf("%s\n\nAnalyze this lab result: Test: %s, Status: %s, Date: %s.\nProvide:\n1. Interpretation (What does this mean?)\n2. Lifestyle Tips (Diet/Exercise)\n3. Suggested Medications (Generic names, if applicable. Mark as 'Consult Doctor')\nOutput as JSON with keys: interpretation, lifestyle, medications.", SafetyPrompt, req.TestName, req.Status, req.Date)
 
-	response, err := callGemini(apiKey, prompt, nil)
+	// FORCE OFFLINE MODE for Stability
+	// response, err := callGemini(apiKey, prompt, nil)
+	var err error = fmt.Errorf("forced offline mode")
 	if err != nil {
 		fmt.Printf("AI Error (Falling back to mock): %v\n", err)
 		// Fallback to Mock
@@ -87,8 +89,8 @@ func AnalyzeLabResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"analysis": response})
+	// w.Header().Set("Content-Type", "application/json")
+	// json.NewEncoder(w).Encode(map[string]string{"analysis": response})
 }
 
 func ScanPrescription(w http.ResponseWriter, r *http.Request) {
@@ -107,14 +109,15 @@ func ScanPrescription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Construct Prompt for Vision
-	prompt := fmt.Sprintf("%s\n\nIdentify all medicines in this prescription image. Return a JSON list with: name, dosage, qty, price (estimate in INR). If handwriting is illegible, return empty list. MARK this result as 'PENDING_VERIFICATION'.", SafetyPrompt)
+	// prompt := fmt.Sprintf("%s\n\nIdentify all medicines in this prescription image. Return a JSON list with: name, dosage, qty, price (estimate in INR). If handwriting is illegible, return empty list. MARK this result as 'PENDING_VERIFICATION'.", SafetyPrompt)
 
-	imageBlob := &Blob{
-		MimeType: "image/jpeg", // Assuming JPEG for simplicity
-		Data:     req.ImageBase64,
-	}
+	// imageBlob := &Blob{
+	// 	MimeType: "image/jpeg", // Assuming JPEG for simplicity
+	// 	Data:     req.ImageBase64,
+	// }
 
-	response, err := callGemini(apiKey, prompt, imageBlob)
+	// response, err := callGemini(apiKey, prompt, imageBlob)
+	var err error = fmt.Errorf("forced offline mode")
 	if err != nil || apiKey == "" {
 		fmt.Printf("AI Error (Falling back to mock): %v\n", err)
 		// Fallback Mock
@@ -128,8 +131,8 @@ func ScanPrescription(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"analysis": response})
+	// w.Header().Set("Content-Type", "application/json")
+	// json.NewEncoder(w).Encode(map[string]string{"analysis": response})
 }
 
 // Reuse struct for image upload
@@ -148,14 +151,15 @@ func ScanLabReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Construct Prompt for Lab Report
-	prompt := fmt.Sprintf("%s\n\nAnalyze this lab report image. Extract the following details:\n1. Test Name\n2. Date\n3. Status (Normal/Abnormal/High Risk)\n4. Detailed Interpretation\n5. Lifestyle Tips\n6. Suggested Medications (Generics, only if clearly indicated, else 'Consult Doctor')\n\nReturn ONLY a JSON object with keys: test_name, date, status, interpretation, lifestyle, medications.", SafetyPrompt)
+	// prompt := fmt.Sprintf("%s\n\nAnalyze this lab report image. Extract the following details:\n1. Test Name\n2. Date\n3. Status (Normal/Abnormal/High Risk)\n4. Detailed Interpretation\n5. Lifestyle Tips\n6. Suggested Medications (Generics, only if clearly indicated, else 'Consult Doctor')\n\nReturn ONLY a JSON object with keys: test_name, date, status, interpretation, lifestyle, medications.", SafetyPrompt)
 
-	imageBlob := &Blob{
-		MimeType: "image/jpeg",
-		Data:     req.ImageBase64,
-	}
+	// imageBlob := &Blob{
+	// 	MimeType: "image/jpeg",
+	// 	Data:     req.ImageBase64,
+	// }
 
-	response, err := callGemini(apiKey, prompt, imageBlob)
+	// response, err := callGemini(apiKey, prompt, imageBlob)
+	var err error = fmt.Errorf("forced offline mode")
 	if err != nil || apiKey == "" {
 		fmt.Printf("AI Error (Falling back to mock): %v\n", err)
 		// Fallback Mock
@@ -172,8 +176,8 @@ func ScanLabReport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"analysis": response})
+	// w.Header().Set("Content-Type", "application/json")
+	// json.NewEncoder(w).Encode(map[string]string{"analysis": response})
 }
 
 func callGemini(apiKey, text string, imageBlob *Blob) (string, error) {
