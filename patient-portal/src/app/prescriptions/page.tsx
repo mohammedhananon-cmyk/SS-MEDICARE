@@ -55,6 +55,33 @@ export default function Prescriptions() {
                             qty: item.qty || "1",
                             price: item.price || "₹ -"
                         })));
+
+                        // AUTO-SAVE to Health Records
+                        const token = localStorage.getItem('token');
+                        if (token) {
+                            try {
+                                await fetch(`${API_BASE_URL}/api/records`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({
+                                        date: new Date().toISOString().split('T')[0],
+                                        type: "Prescription Scan",
+                                        doctor: "AI Identified",
+                                        facility: "Patient Upload",
+                                        status: "Active",
+                                        details: `Identified ${parsed.length} medicines.`,
+                                        attachmentUrl: `data:image/jpeg;base64,${base64String}`
+                                    })
+                                });
+                                console.log("Prescription auto-saved to records.");
+                            } catch (err) {
+                                console.error("Failed to auto-save record", err);
+                            }
+                        }
+
                     } else {
                         // Handle case where AI returns an object instead of array
                         setScannedMeds([{ id: 0, name: "Parsing Error", dosage: "See raw output", qty: "-", price: "-" }]);

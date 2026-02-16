@@ -99,6 +99,8 @@ export default function HealthRecords() {
                 try {
                     const cleanJson = data.analysis.replace(/```json\n?|\n?```/g, '').trim();
                     const parsed = JSON.parse(cleanJson);
+                    // Attach the image for saving later
+                    parsed.attachmentUrl = `data:image/jpeg;base64,${base64String}`;
                     setAnalysisData(parsed);
                     setShowUploadModal(false);
                 } catch (e) {
@@ -248,10 +250,36 @@ export default function HealthRecords() {
                                 <strong>Summary:</strong>
                                 <p style={{ marginTop: '0.5rem', lineHeight: 1.5 }}>{analysisData.interpretation}</p>
                             </div>
-                            <button className="button-primary" onClick={() => {
-                                // Add logic to save to backend if needed
-                                setAnalysisData(null);
-                                alert("Record saved to history!");
+                            <button className="button-primary" onClick={async () => {
+                                const token = localStorage.getItem('token');
+                                try {
+                                    const res = await fetch(`${API_BASE_URL}/api/records`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${token}`
+                                        },
+                                        body: JSON.stringify({
+                                            date: analysisData.date || new Date().toISOString().split('T')[0],
+                                            type: analysisData.test_name || "Health Record",
+                                            doctor: "AI Lab Analysis",
+                                            facility: "Patient Upload",
+                                            status: analysisData.status || "Completed",
+                                            details: analysisData.interpretation,
+                                            attachmentUrl: analysisData.attachmentUrl
+                                        })
+                                    });
+                                    if (res.ok) {
+                                        alert("Record saved successfully!");
+                                        setAnalysisData(null);
+                                        fetchAllData(); // Refresh list
+                                    } else {
+                                        alert("Failed to save record.");
+                                    }
+                                } catch (err) {
+                                    console.error(err);
+                                    alert("Error saving record.");
+                                }
                             }}>Save Record</button>
                         </div>
                     </div>
