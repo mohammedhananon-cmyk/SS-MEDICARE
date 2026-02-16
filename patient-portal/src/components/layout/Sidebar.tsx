@@ -34,25 +34,41 @@ export default function Sidebar() {
                 ))}
             </nav>
 
-            <div className={styles.footer}>
+            {/* Logout Section */}
+            <div style={{ marginTop: 'auto', paddingBottom: '1rem' }}>
                 <button
                     onClick={() => {
                         localStorage.removeItem("token");
                         window.location.href = "/login";
                     }}
+                    className={styles.navItem}
                     style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--text-secondary)',
-                        cursor: 'pointer',
-                        fontSize: '0.875rem',
-                        marginBottom: '1rem',
-                        textAlign: 'left',
-                        padding: 0
+                        width: '100%',
+                        background: 'transparent',
+                        border: '1px solid var(--border-subtle)',
+                        color: 'var(--error)',
+                        justifyContent: 'flex-start',
+                        marginTop: 'auto'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#fef2f2';
+                        e.currentTarget.style.borderColor = 'var(--error)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.borderColor = 'var(--border-subtle)';
                     }}
                 >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
                     Log Out
                 </button>
+            </div>
+
+            <div className={styles.footer} style={{ marginTop: 0 }}>
                 <p>SS MEDICARE v1.0</p>
                 <p style={{ fontSize: '0.75rem', opacity: 0.7 }}>Secure Environment</p>
             </div>
