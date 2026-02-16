@@ -44,6 +44,35 @@ export default function LabResults() {
                     const cleanJson = data.analysis.replace(/```json\n?|\n?```/g, '').trim();
                     const parsed = JSON.parse(cleanJson);
 
+                    // AUTO-SAVE to Health Records
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                        try {
+                            const today = new Date().toISOString().split('T')[0];
+                            const recordPayload = {
+                                date: parsed.date || today,
+                                type: parsed.test_name || "Lab Report",
+                                doctor: "AI Analysis",
+                                facility: "Patient Upload",
+                                status: parsed.status || "Completed",
+                                details: parsed.interpretation || "AI analyzed report",
+                                attachmentUrl: `data:image/jpeg;base64,${base64String}`
+                            };
+
+                            await fetch(`${API_BASE_URL}/api/records`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify(recordPayload)
+                            });
+                            console.log("Lab report auto-saved to records.");
+                        } catch (err) {
+                            console.error("Failed to auto-save lab report", err);
+                        }
+                    }
+
                     // Directly open analysis modal with the new data
                     setSelectedResult({
                         test: parsed.test_name || "Uploaded Report",
