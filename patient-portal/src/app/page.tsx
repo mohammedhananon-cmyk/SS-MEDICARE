@@ -30,24 +30,32 @@ export default function Home() {
     // Initialize trend based on default range with empty data for new users
     updateHistoricalData('Real-Time');
 
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      // Fetch Profile
-      fetch(`${API_BASE_URL}/api/profile`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("Failed to fetch");
-          return res.json();
+    const fetchProfile = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Fetch Profile
+        fetch(`${API_BASE_URL}/api/profile`, {
+          headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(data => setProfile(data))
-        .catch(err => {
-          console.error("Failed to load profile", err);
-          // If unauthorized, maybe clear token? 
-          // For now just log it
-        });
-    }
+          .then(res => {
+            if (!res.ok) throw new Error("Failed to fetch");
+            return res.json();
+          })
+          .then(data => setProfile(data))
+          .catch(err => {
+            console.error("Failed to load profile", err);
+          });
+      }
+    };
+
+    fetchProfile();
+
+    const handleProfileUpdate = () => fetchProfile();
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
   }, []);
 
   useEffect(() => {
