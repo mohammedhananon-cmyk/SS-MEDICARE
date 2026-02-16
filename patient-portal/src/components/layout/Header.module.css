@@ -11,6 +11,13 @@
     z-index: 40;
 }
 
+@media (max-width: 768px) {
+    .header {
+        padding: 0 0.5rem;
+        height: 70px;
+    }
+}
+
 .title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -23,6 +30,22 @@
     max-width: 480px;
     margin: 0 4rem;
     position: relative;
+}
+
+@media (max-width: 1024px) {
+    .search {
+        margin: 0 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .search {
+        margin: 0 1rem;
+    }
+
+    /* Hide specific search text on very small screens if needed, 
+       but keeping the bar is usually better. 
+       We might want to hide the user name though. */
 }
 
 .input {
@@ -51,6 +74,12 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .actions {
+        gap: 0.75rem;
+    }
 }
 
 .notification {
@@ -98,6 +127,18 @@
 
 .user:hover {
     background: rgba(0, 0, 0, 0.03);
+}
+
+/* Hide user name/details on mobile, show only avatar */
+@media (max-width: 640px) {
+    .user {
+        gap: 0;
+        padding: 0;
+    }
+
+    .user>div:last-child {
+        display: none;
+    }
 }
 
 .avatar {

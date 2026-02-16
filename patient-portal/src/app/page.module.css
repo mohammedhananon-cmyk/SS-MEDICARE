@@ -197,3 +197,33 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .container {
+    gap: 1rem;
+  }
+
+  .chartSection,
+  .activitySection {
+    padding: 1.25rem;
+  }
+
+  .welcome h1 {
+    font-size: 1.5rem;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .statsGrid {
+    gap: 1rem;
+  }
+
+  .statCard {
+    padding: 1.25rem;
+  }
+}
