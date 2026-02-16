@@ -37,6 +37,7 @@ export default function BookingConfirmation({ params }: { params: Promise<{ hosp
     const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedTime, setSelectedTime] = useState("");
+    const [dateError, setDateError] = useState("");
     const [isConfirmed, setIsConfirmed] = useState(false);
 
     useEffect(() => {
@@ -189,11 +190,47 @@ export default function BookingConfirmation({ params }: { params: Promise<{ hosp
                                 className={styles.input}
                                 style={{
                                     width: '100%', padding: '1rem', borderRadius: '8px',
-                                    border: '1px solid var(--border-subtle)', outline: 'none',
+                                    border: `1px solid ${dateError ? 'var(--error)' : 'var(--border-subtle)'}`, outline: 'none',
                                     fontFamily: 'inherit', fontSize: '1rem', background: 'var(--bg-main)', color: 'var(--text-primary)'
                                 }}
-                                onChange={(e) => setSelectedDate(e.target.value)}
+                                onChange={(e) => {
+                                    const dateVal = e.target.value;
+                                    if (!dateVal) {
+                                        setSelectedDate("");
+                                        setDateError("");
+                                        return;
+                                    }
+
+                                    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                                    const dayIndex = new Date(dateVal).getDay();
+                                    const dayName = dayNames[dayIndex];
+
+                                    // Parse available days (e.g., "Mon,Wed,Fri" or "Mon-Fri")
+                                    // For simplicity, we handle comma-separated list primarily as seeded
+                                    // Robust check: 
+                                    const avail = doctor.availableDays || "Mon,Tue,Wed,Thu,Fri,Sat";
+                                    let isAvailable = false;
+
+                                    if (avail.includes("-")) {
+                                        // Handle ranges nicely if needed, or simple check
+                                        // "Mon-Sat" -> crude check
+                                        if (avail === "Mon-Sat" && dayName !== "Sun") isAvailable = true;
+                                        else if (avail === "Mon-Fri" && dayName !== "Sun" && dayName !== "Sat") isAvailable = true;
+                                        else if (avail.includes(dayName)) isAvailable = true;
+                                    } else {
+                                        if (avail.includes(dayName)) isAvailable = true;
+                                    }
+
+                                    if (!isAvailable) {
+                                        setDateError(`Doctor is only available on: ${doctor.availableDays}`);
+                                        setSelectedDate(""); // Prevent selection
+                                    } else {
+                                        setDateError("");
+                                        setSelectedDate(dateVal);
+                                    }
+                                }}
                             />
+                            {dateError && <div style={{ color: 'var(--error)', fontSize: '0.85rem', marginTop: '0.5rem' }}>{dateError}</div>}
                         </div>
 
                         <div style={{ marginBottom: '2rem' }}>

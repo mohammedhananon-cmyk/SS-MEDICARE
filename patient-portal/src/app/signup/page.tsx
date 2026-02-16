@@ -44,9 +44,20 @@ export default function Signup() {
 
                 if (loginRes.ok) {
                     const data = await loginRes.json();
+
+                    // Clear any potential old data first
+                    localStorage.removeItem("token");
+
+                    // Set new token
                     localStorage.setItem("token", data.token);
+
+                    // Force storage event for other tabs/components
                     window.dispatchEvent(new Event("storage"));
-                    router.push("/");
+
+                    // Small delay to ensure ClientLayout picks up the token change
+                    setTimeout(() => {
+                        router.push("/");
+                    }, 100);
                 } else {
                     router.push("/login"); // Fallback if auto-login fails
                 }

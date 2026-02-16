@@ -75,7 +75,7 @@ export default function LabResults() {
         setAnalysisData(null);
 
         try {
-            const response = await fetch('http://localhost:8080/api/analyze-lab-result', {
+            const response = await fetch(`${API_BASE_URL}/api/analyze-lab-result`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

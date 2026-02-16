@@ -111,7 +111,7 @@ func ScanPrescription(w http.ResponseWriter, r *http.Request) {
 
 	// Construct Prompt for Vision
 	prompt := fmt.Sprintf("%s\n\nIdentify all medicines in this prescription image. Return a JSON list with: name, dosage, qty, price (estimate in INR). If handwriting is illegible, return empty list. MARK this result as 'PENDING_VERIFICATION'.", SafetyPrompt)
-	
+
 	imageBlob := &Blob{
 		MimeType: "image/jpeg", // Assuming JPEG for simplicity, can detect if needed
 		Data:     req.ImageBase64,
@@ -158,7 +158,7 @@ func ScanLabReport(w http.ResponseWriter, r *http.Request) {
 
 	// Construct Prompt for Lab Report
 	prompt := fmt.Sprintf("%s\n\nAnalyze this lab report image. Extract the following details:\n1. Test Name\n2. Date\n3. Status (Normal/Abnormal/High Risk)\n4. Detailed Interpretation\n5. Lifestyle Tips\n6. Suggested Medications (Generics, only if clearly indicated, else 'Consult Doctor')\n\nReturn ONLY a JSON object with keys: test_name, date, status, interpretation, lifestyle, medications.", SafetyPrompt)
-	
+
 	imageBlob := &Blob{
 		MimeType: "image/jpeg",
 		Data:     req.ImageBase64,
@@ -175,8 +175,11 @@ func ScanLabReport(w http.ResponseWriter, r *http.Request) {
 }
 
 func callGemini(apiKey, text string, image *Blob) (string, error) {
-	// Switching to gemini-1.5-pro for better stability/availability if flash is failing
-	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + apiKey
+	// Using gemini-1.5-flash which is stable and widely available on v1beta
+	modelName := "gemini-1.5-flash"
+	url := "https://generativelanguage.googleapis.com/v1beta/models/" + modelName + ":generateContent?key=" + apiKey
+
+	fmt.Printf("Calling Gemini Model: %s\n", modelName)
 
 	parts := []GeminiPart{{Text: text}}
 	if image != nil {

@@ -24,16 +24,30 @@ export default function Home() {
   const [bpTrend, setBpTrend] = useState<any[]>([]);
 
   useEffect(() => {
+    // Reset state first
+    setProfile(null);
+
     // Initialize trend based on default range with empty data for new users
     updateHistoricalData('Real-Time');
 
-    // Fetch Profile
-    fetch(`${API_BASE_URL}/api/profile`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    })
-      .then(res => res.json())
-      .then(data => setProfile(data))
-      .catch(err => console.error("Failed to load profile", err));
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      // Fetch Profile
+      fetch(`${API_BASE_URL}/api/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        })
+        .then(data => setProfile(data))
+        .catch(err => {
+          console.error("Failed to load profile", err);
+          // If unauthorized, maybe clear token? 
+          // For now just log it
+        });
+    }
   }, []);
 
   useEffect(() => {

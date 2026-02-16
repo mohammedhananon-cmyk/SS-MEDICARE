@@ -7,24 +7,33 @@ import Header from "@/components/layout/Header";
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter(); // Initialize router
-    const isAuthPage = pathname === "/login" || pathname === "/signup";
+    const isAuthPage = pathname?.startsWith("/login") || pathname?.startsWith("/signup");
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Auth Check
-        const token = localStorage.getItem('token');
-        if (!token && !isAuthPage) {
-            router.push('/login');
-        } else if (token && isAuthPage) {
-            // Optional: Redirect to dashboard if trying to access login while authenticated
-            router.push('/');
-            setIsAuthenticated(true);
-        } else {
-            setIsAuthenticated(!!token);
-        }
-        setIsLoading(false);
+        const checkAuth = () => {
+            const token = localStorage.getItem('token');
+            // If on root or protected route and not authenticated
+            if (!token && !isAuthPage) {
+                router.replace('/login'); // Use replace to avoid history stack issues
+                // Do NOT set loading to false, let the redirect happen
+            }
+            // If on auth page but already authenticated
+            else if (token && isAuthPage) {
+                router.replace('/');
+                setIsAuthenticated(true);
+                // Do NOT set loading to false, let the redirect happen
+            }
+            // Normal state
+            else {
+                setIsAuthenticated(!!token);
+                setIsLoading(false);
+            }
+        };
+
+        checkAuth();
     }, [pathname, isAuthPage, router]);
 
     useEffect(() => {

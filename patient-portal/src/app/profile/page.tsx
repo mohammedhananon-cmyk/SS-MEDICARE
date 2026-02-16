@@ -14,11 +14,25 @@ export default function Profile() {
     }, []);
 
     const fetchProfile = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setIsLoading(false);
+            return;
+        }
+
         try {
-            const res = await fetch(`${API_BASE_URL}/api/profile`);
+            const res = await fetch(`${API_BASE_URL}/api/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             if (res.ok) {
                 const data = await res.json();
                 setProfile(data);
+            } else {
+                // If unauthorized or forbidden, maybe token expired
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
             }
         } catch (error) {
             console.error("Failed to fetch profile", error);
@@ -31,7 +45,10 @@ export default function Profile() {
         try {
             const res = await fetch(`${API_BASE_URL}/api/profile`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
                 body: JSON.stringify(profile)
             });
             if (res.ok) {
@@ -71,6 +88,7 @@ export default function Profile() {
         try {
             const res = await fetch(`${API_BASE_URL}/api/profile/upload`, {
                 method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
                 body: formData,
             });
 

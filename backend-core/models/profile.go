@@ -24,4 +24,6 @@ type Profile struct {
 	EmergencyName         string `json:"emergencyName"`
 	EmergencyRelationship string `json:"emergencyRelationship"`
 	EmergencyPhone        string `json:"emergencyPhone"`
+
+	IsProfileComplete bool `json:"isProfileComplete" gorm:"default:false"`
 }
