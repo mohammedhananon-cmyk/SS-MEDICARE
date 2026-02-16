@@ -188,10 +188,12 @@ export default function BookingConfirmation({ params }: { params: Promise<{ hosp
                             <input
                                 type="date"
                                 className={styles.input}
+                                min={new Date().toISOString().split('T')[0]}
                                 style={{
                                     width: '100%', padding: '1rem', borderRadius: '8px',
                                     border: `1px solid ${dateError ? 'var(--error)' : 'var(--border-subtle)'}`, outline: 'none',
-                                    fontFamily: 'inherit', fontSize: '1rem', background: 'var(--bg-main)', color: 'var(--text-primary)'
+                                    fontFamily: 'inherit', fontSize: '1rem', background: 'var(--bg-secondary)', color: 'var(--text-primary)',
+                                    colorScheme: 'light' // Forces browser date picker to be light/readable
                                 }}
                                 onChange={(e) => {
                                     const dateVal = e.target.value;
@@ -205,26 +207,15 @@ export default function BookingConfirmation({ params }: { params: Promise<{ hosp
                                     const dayIndex = new Date(dateVal).getDay();
                                     const dayName = dayNames[dayIndex];
 
-                                    // Parse available days (e.g., "Mon,Wed,Fri" or "Mon-Fri")
-                                    // For simplicity, we handle comma-separated list primarily as seeded
-                                    // Robust check: 
-                                    const avail = doctor.availableDays || "Mon,Tue,Wed,Thu,Fri,Sat";
-                                    let isAvailable = false;
+                                    // Strict Mon-Fri rule requested by user
+                                    const isWeekend = dayIndex === 0 || dayIndex === 6; // 0=Sun, 6=Sat
 
-                                    if (avail.includes("-")) {
-                                        // Handle ranges nicely if needed, or simple check
-                                        // "Mon-Sat" -> crude check
-                                        if (avail === "Mon-Sat" && dayName !== "Sun") isAvailable = true;
-                                        else if (avail === "Mon-Fri" && dayName !== "Sun" && dayName !== "Sat") isAvailable = true;
-                                        else if (avail.includes(dayName)) isAvailable = true;
-                                    } else {
-                                        if (avail.includes(dayName)) isAvailable = true;
-                                    }
-
-                                    if (!isAvailable) {
-                                        setDateError(`Doctor is only available on: ${doctor.availableDays}`);
+                                    if (isWeekend) {
+                                        setDateError("Consultations are only available Monday to Friday.");
                                         setSelectedDate(""); // Prevent selection
                                     } else {
+                                        // Optional: Check specific doctor availability if needed, 
+                                        // but user requested strict Mon-Fri rule overrides for now.
                                         setDateError("");
                                         setSelectedDate(dateVal);
                                     }
