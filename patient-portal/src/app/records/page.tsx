@@ -198,16 +198,49 @@ export default function HealthRecords() {
                                         {record.isAppointment && record.status === 'Upcoming' ? (
                                             <button className="button-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>Reschedule</button>
                                         ) : (
-                                            <a href={`/records/${record.originalId || record.ID || record.id}`} className="button-outline" style={{
-                                                padding: '0.4rem 0.8rem',
-                                                fontSize: '0.8rem',
-                                                textDecoration: 'none',
-                                                border: '1px solid var(--border-subtle)',
-                                                borderRadius: '6px',
-                                                color: 'var(--text-primary)',
-                                                background: 'var(--bg-secondary)',
-                                                display: 'inline-block'
-                                            }}>View</a>
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                {/* View Button */}
+                                                <a href={`/records/${record.originalId || record.ID || record.id}`} className="button-outline" style={{
+                                                    padding: '0.4rem 0.8rem',
+                                                    fontSize: '0.8rem',
+                                                    textDecoration: 'none',
+                                                    border: '1px solid var(--border-subtle)',
+                                                    borderRadius: '6px',
+                                                    color: 'var(--text-primary)',
+                                                    background: 'var(--bg-secondary)',
+                                                    display: 'inline-block'
+                                                }}>View</a>
+
+                                                {/* AI Analysis Button (Only for records with attachments like uploads) */}
+                                                {!record.isAppointment && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setAnalysisData({
+                                                                date: record.date,
+                                                                test_name: record.type,
+                                                                status: record.status,
+                                                                interpretation: record.details || "No detailed analysis available.",
+                                                                attachmentUrl: record.attachmentUrl,
+                                                                isHistorical: true // Flag to hide "Save" button
+                                                            });
+                                                        }}
+                                                        style={{
+                                                            padding: '0.4rem 0.8rem',
+                                                            fontSize: '0.8rem',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            color: 'white',
+                                                            background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.25rem'
+                                                        }}
+                                                    >
+                                                        ✨ AI
+                                                    </button>
+                                                )}
+                                            </div>
                                         )}
                                     </td>
                                 </tr>
@@ -250,37 +283,50 @@ export default function HealthRecords() {
                                 <strong>Summary:</strong>
                                 <p style={{ marginTop: '0.5rem', lineHeight: 1.5 }}>{analysisData.interpretation}</p>
                             </div>
-                            <button className="button-primary" onClick={async () => {
-                                const token = localStorage.getItem('token');
-                                try {
-                                    const res = await fetch(`${API_BASE_URL}/api/records`, {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${token}`
-                                        },
-                                        body: JSON.stringify({
-                                            date: analysisData.date || new Date().toISOString().split('T')[0],
-                                            type: analysisData.test_name || "Health Record",
-                                            doctor: "AI Lab Analysis",
-                                            facility: "Patient Upload",
-                                            status: analysisData.status || "Completed",
-                                            details: analysisData.interpretation,
-                                            attachmentUrl: analysisData.attachmentUrl
-                                        })
-                                    });
-                                    if (res.ok) {
-                                        alert("Record saved successfully!");
-                                        setAnalysisData(null);
-                                        fetchAllData(); // Refresh list
-                                    } else {
-                                        alert("Failed to save record.");
+
+                            {/* Show Image if available (for historical records) */}
+                            {analysisData.attachmentUrl && (
+                                <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px' }}>
+                                    <strong>Original Document:</strong>
+                                    <div style={{ marginTop: '0.5rem', maxHeight: '200px', overflow: 'hidden', borderRadius: '8px' }}>
+                                        <img src={analysisData.attachmentUrl} alt="Record Attachment" style={{ width: '100%', objectFit: 'cover' }} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {!analysisData.isHistorical && (
+                                <button className="button-primary" onClick={async () => {
+                                    const token = localStorage.getItem('token');
+                                    try {
+                                        const res = await fetch(`${API_BASE_URL}/api/records`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': `Bearer ${token}`
+                                            },
+                                            body: JSON.stringify({
+                                                date: analysisData.date || new Date().toISOString().split('T')[0],
+                                                type: analysisData.test_name || "Health Record",
+                                                doctor: "AI Lab Analysis",
+                                                facility: "Patient Upload",
+                                                status: analysisData.status || "Completed",
+                                                details: analysisData.interpretation,
+                                                attachmentUrl: analysisData.attachmentUrl
+                                            })
+                                        });
+                                        if (res.ok) {
+                                            alert("Record saved successfully!");
+                                            setAnalysisData(null);
+                                            fetchAllData(); // Refresh list
+                                        } else {
+                                            alert("Failed to save record.");
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert("Error saving record.");
                                     }
-                                } catch (err) {
-                                    console.error(err);
-                                    alert("Error saving record.");
-                                }
-                            }}>Save Record</button>
+                                }}>Save Record</button>
+                            )}
                         </div>
                     </div>
                 </div>
