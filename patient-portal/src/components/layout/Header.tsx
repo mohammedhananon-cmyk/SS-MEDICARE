@@ -8,8 +8,13 @@ export default function Header() {
     const [user, setUser] = useState<any>(null);
 
     const fetchProfile = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
         try {
-            const res = await fetch(`${API_BASE_URL}/api/profile`);
+            const res = await fetch(`${API_BASE_URL}/api/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             if (res.ok) {
                 const data = await res.json();
                 setUser(data);
